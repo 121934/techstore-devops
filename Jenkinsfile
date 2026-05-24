@@ -180,35 +180,41 @@ pipeline {
     post {
         success {
             echo "🎉 Pipeline başarıyla tamamlandı!"
-            slackSend(
-                channel: env.SLACK_CHANNEL,
-                color: 'good',
-                message: """
+            // Slack eklentisi veya kimlik bilgileri yapılandırılmadıysa hata fırlatıp pipeline'ı kırmızıya boyamasın diye catchError içine alıyoruz
+            catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                slackSend(
+                    channel: env.SLACK_CHANNEL ?: '#devops-techstore',
+                    color: 'good',
+                    message: """
 ✅ *TechStore Deploy Başarılı*
-• Branch: `${env.BRANCH_NAME}`
-• Build: `#${env.BUILD_NUMBER}`
-• Commit: `${env.GIT_COMMIT?.take(7)}`
+• Branch: ${env.BRANCH_NAME ?: 'main'}
+• Build: #${env.BUILD_NUMBER}
+• Commit: ${env.GIT_COMMIT ? env.GIT_COMMIT.take(7) : 'N/A'}
 • URL: ${env.BUILD_URL}
-                """
-            )
+                    """
+                )
+            }
         }
         failure {
             echo "❌ Pipeline başarısız!"
-            slackSend(
-                channel: env.SLACK_CHANNEL,
-                color: 'danger',
-                message: """
+            catchError(buildResult: 'FAILURE', stageResult: 'UNSTABLE') {
+                slackSend(
+                    channel: env.SLACK_CHANNEL ?: '#devops-techstore',
+                    color: 'danger',
+                    message: """
 ❌ *TechStore Deploy Başarısız*
-• Branch: `${env.BRANCH_NAME}`
-• Build: `#${env.BUILD_NUMBER}`
-• Aşama: ${env.STAGE_NAME}
-• Detay: ${env.BUILD_URL}console
-                """
-            )
+• Branch: ${env.BRANCH_NAME ?: 'main'}
+• Build: #${env.BUILD_NUMBER}
+• URL: ${env.BUILD_URL}console
+                    """
+                )
+            }
         }
         always {
-            // Eski imajları temizle (son 3'ü tut)
-            sh "docker image prune -f --filter 'until=72h' || true"
+            // Jenkins konteynerinde docker komutu yüklü olmasa bile pipeline'ı çökertmemesi için '|| true' kalıbını tırnak dışına ve sh içine güvenli alıyoruz
+            catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                sh "docker image prune -f --filter 'until=72h' || echo 'Docker komutu bu ortamda yürütülemedi, temizlik atlanıyor.'"
+            }
             cleanWs()
         }
     }
