@@ -130,6 +130,7 @@ pipeline {
                     # Konteynerin içindeki hatayı görmek için -t (tty) ekleyelim
                     docker run -d --name techstore-app \
                         --restart unless-stopped \
+                        -e PYTHONUNBUFFERED=1\
                         -p 5000:5000 \
                         ${DOCKER_HUB_USER}/${DOCKER_IMAGE}:latest
                     
@@ -150,21 +151,30 @@ pipeline {
         stage('Smoke Test') {
             steps {
                 sh '''
-                    # /health endpoint kontrol
-                    STATUS=$(docker exec techstore-app curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/health)
+                    echo "🔍 Konteyner içinden sağlık kontrolleri yapılıyor..."
+
+                    # 1. /health kontrolü (Python ile)
+                    # Python komutunun sonucunu STATUS değişkenine alıyoruz
+                    STATUS=$(docker exec techstore-app python3 -c "import urllib.request; \
+                    try: print(urllib.request.urlopen('http://localhost:5000/health').getcode()) \
+                    except: print('500')")
+                    
                     if [ "$STATUS" != "200" ]; then
-                        echo "❌ Smoke test başarısız! HTTP: $STATUS"
+                        echo "❌ Smoke test başarısız! /health HTTP: $STATUS"
                         exit 1
                     fi
 
-                    # Ana sayfa kontrol
-                    STATUS2=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/)
+                    # 2. Ana sayfa kontrolü (Yine Python ile, curl kullanmıyoruz)
+                    STATUS2=$(docker exec techstore-app python3 -c "import urllib.request; \
+                    try: print(urllib.request.urlopen('http://localhost:5000/').getcode()) \
+                    except: print('500')")
+                    
                     if [ "$STATUS2" != "200" ]; then
                         echo "❌ Ana sayfa erişilemiyor! HTTP: $STATUS2"
                         exit 1
                     fi
 
-                    echo "✅ Smoke testleri geçildi"
+                    echo "✅ Smoke testleri geçildi!"
                 '''
             }
         }
