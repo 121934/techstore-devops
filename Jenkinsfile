@@ -136,7 +136,7 @@ pipeline {
                         ${DOCKER_HUB_USER}/${DOCKER_IMAGE}:latest
 
                     echo "⏳ Sağlık kontrolü bekleniyor..."
-                    sleep 10
+                    sleep 30
                 """
             }
         }
