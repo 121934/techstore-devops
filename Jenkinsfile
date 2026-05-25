@@ -163,7 +163,7 @@ pipeline {
             steps {
                 sh '''
                     # /health endpoint kontrol
-                    STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/health)
+                    STATUS=$(docker exec techstore-app curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/health)
                     if [ "$STATUS" != "200" ]; then
                         echo "❌ Smoke test başarısız! HTTP: $STATUS"
                         exit 1
