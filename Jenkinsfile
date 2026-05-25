@@ -122,6 +122,7 @@ pipeline {
 
         // ── 8. DEPLOY ───────────────────────────────────────────
         stage('Deploy') {
+            docker pull ${DOCKER_HUB_USER}/${DOCKER_IMAGE}:latest
             steps {
                 sh """
                     # Eski konteyneri durdur
