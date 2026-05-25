@@ -125,14 +125,16 @@ pipeline {
             
             steps {
                 sh """
+                    docker network create tech-net 2>/dev/null || true
                     # Eski konteyneri durdur
                     docker stop techstore-app 2>/dev/null || true
                     docker rm techstore-app 2>/dev/null || true
-                    docker pull ${DOCKER_HUB_USER}/${DOCKER_IMAGE}:latest
+                    
                     
                     # Yeni versiyonu başlat
                     docker run -d \
                         --name techstore-app \
+                        --network tech-net\
                         --restart unless-stopped \
                         -p 5000:5000 \
                         ${DOCKER_HUB_USER}/${DOCKER_IMAGE}:latest
