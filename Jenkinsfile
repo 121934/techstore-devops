@@ -1,12 +1,14 @@
 pipeline {
-    agent any
-    tools{
-        docker 'docker'
+    agent {
+        docker{
+            image 'python:3.13' 
+            args '-u root -v /var/run/docker.sock:/var/run/docker.sock'
+        }
     }
     environment {
         DOCKER_IMAGE    = 'techstore-app'
         DOCKER_HUB_USER = 'kullanici-adi'          // Docker Hub kullanıcı adınız
-        SONAR_HOST      = 'http://localhost:9000'
+        SONAR_HOST      = 'http://techstore-sonarqube:9000'
         SONAR_TOKEN     = credentials('sonar-token') // Jenkins Credentials'a ekleyin
         SLACK_CHANNEL   = '#devops-techstore'
     }
