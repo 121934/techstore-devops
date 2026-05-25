@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker{
-            image 'python:3.13' 
-            args '-u root -v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any
     environment {
         DOCKER_IMAGE    = 'techstore-app'
         DOCKER_HUB_USER = 'kullanici-adi'          // Docker Hub kullanıcı adınız
