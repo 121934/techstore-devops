@@ -129,7 +129,7 @@ pipeline {
                     docker stop techstore-app 2>/dev/null || true
                     docker rm techstore-app 2>/dev/null || true
                     docker pull ${DOCKER_HUB_USER}/${DOCKER_IMAGE}:latest
-
+                    
                     # Yeni versiyonu başlat
                     docker run -d \
                         --name techstore-app \
@@ -137,8 +137,21 @@ pipeline {
                         -p 5000:5000 \
                         ${DOCKER_HUB_USER}/${DOCKER_IMAGE}:latest
 
-                    echo "⏳ Sağlık kontrolü bekleniyor..."
-                    sleep 30
+                    echo "⏳ Uygulama başlatılıyor, 15 saniye bekleniyor..."
+                    sleep 15
+                    
+                    # HATAYI YAKALAMA BÖLÜMÜ
+                    echo "--- KONTEYNER ÇALIŞMA DURUMU ---"
+                    docker ps -f name=techstore-app
+                    
+                    echo "--- UYGULAMA LOGLARI (Hata neden burada?) ---"
+                    docker logs techstore-app
+                    
+                    # Eğer konteyner çalışmıyorsa çıkış yap ki Smoke Test'e geçmesin
+                    if [ \$(docker inspect -f '{{.State.Running}}' techstore-app) != "true" ]; then
+                        echo "❌ KONTEYNER ÇALIŞMIYOR!"
+                        exit 1
+                    fi
                 """
             }
         }
