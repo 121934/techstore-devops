@@ -122,12 +122,13 @@ pipeline {
 
         // ── 8. DEPLOY ───────────────────────────────────────────
         stage('Deploy') {
-            docker pull ${DOCKER_HUB_USER}/${DOCKER_IMAGE}:latest
+            
             steps {
                 sh """
                     # Eski konteyneri durdur
                     docker stop techstore-app 2>/dev/null || true
                     docker rm techstore-app 2>/dev/null || true
+                    docker pull ${DOCKER_HUB_USER}/${DOCKER_IMAGE}:latest
 
                     # Yeni versiyonu başlat
                     docker run -d \
