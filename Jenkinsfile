@@ -67,7 +67,7 @@ pipeline {
                         -Dsonar.sources=. \
                         -Dsonar.exclusions=venv/**,tests/**,**/__pycache__/** \
                         -Dsonar.python.coverage.reportPaths=coverage.xml \
-                        -Dsonar.host.url=http://techstore-sonarqube:9000 \
+                        -Dsonar.host.url=http://192.168.1.111:9000 \
                         -Dsonar.login=\$SONAR_TOKEN
                     """
                 }
