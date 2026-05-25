@@ -1,6 +1,8 @@
 pipeline {
     agent any
-
+    tools{
+        docker 'docker'
+    }
     environment {
         DOCKER_IMAGE    = 'techstore-app'
         DOCKER_HUB_USER = 'kullanici-adi'          // Docker Hub kullanıcı adınız
