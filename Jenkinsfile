@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKER_IMAGE    = 'techstore-app'
-        DOCKER_HUB_USER = 'kullanici-adi'          // Docker Hub kullanıcı adınız
+        DOCKER_HUB_USER = 'elif1219'          // Docker Hub kullanıcı adınız
         SONAR_HOST      = 'http://192.168.1.111:9000'
         SONAR_TOKEN     = credentials('sonar-token') // Jenkins Credentials'a ekleyin
         SLACK_CHANNEL   = '#devops-techstore'
